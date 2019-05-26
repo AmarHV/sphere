@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% block content %}
+<main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+	<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+	<h1 class="h2">{{ project.name }}</h1>
+	</div>
+	<form action="/projects/enter_data/{{ project.id }}/" method="POST">
+		{% csrf_token %}
+		{% for attribute in attributes %}
+			<div class="attribute">
+				<h3 class="h5">{{ attribute.name }}</h3>
+				{% for field in attribute.fields.all %}
+					<b>{{ field.question }}</b>
+					<table class="table table-condensed">
+					<tr>
+						<th>Rating</th>
+						{% for criterion in field.criteria.all %}
+							<th><label for="{{ criterion.rating }}">{{ criterion.rating }}</label><input type="radio" name="{{ field.id }}" value="{{ criterion.rating }}" {% if criterion in criteria %}checked="checked"{% endif %}></th>
+						{% endfor %}
+					</tr>
+					<tr>
+						<th>Description</th>
+						{% for criterion in field.criteria.all %}
+							<td>{{ criterion.description }}</td>
+						{% endfor %}
+					</tr>
+					</table>
+				{% endfor %}
+			</div>
+		{% endfor %}
+		<input type="submit" class="btn btn-submit" value="Save">
+	</form>
+</main>
+{% endblock %}

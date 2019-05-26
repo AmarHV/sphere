@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% block content %}
+<main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+	<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+	<h1 class="h2">{{ project.name }}</h1>
+	<div class="btn-toolbar mb-2 mb-md-0">
+			<a class="btn btn-sm btn-outline-secondary" href="/projects/enter_data/{{ project.id }}">
+				Enter Data
+			</a>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-8">
+			{{ graph|safe }}
+		</div>
+		<div class="col-md-4">
+			<h4 class="h4">Results</h4>
+			<h6 class="h6">Score:</h6>
+			<h5><span id="score" class="badge {{ results.score_class }}">{{ results.score }}</span></h5>
+			<h6 class="h6">Areas for Improvement:</h6>
+			<uL>
+				{% for attribute in results.below_average %}
+					<li>{{ attribute }}</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+</main>
+<script type="text/javascript">
+	$("document").ready(function() {
+				
+	})
+</script>
+{% endblock %}
