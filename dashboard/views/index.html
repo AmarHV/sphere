@@ -11,15 +11,19 @@
 	</div>
 	<div class="row">
 		{% for project, results in results.items %}
-			<div class="col-md-3 card card-body">
-				<h4 class="h4"><a href="/projects/view/{{ project.id }}">{{ project.name }}</a><br></h4>
-				<h4 class="h4"><span id="score" class="badge {{ results.score_class }}">{{ results.score }}</span></h4>
-				<h6 class="h6">Areas for Improvement:</h6>
-				<uL>
-					{% for attribute in results.below_average %}
-						<li>{{ attribute }}</li>
-					{% endfor %}
-				</ul>
+			<div class="col-md-3">
+				<div class="card">
+					<div class="card-body">
+						<h4 class="h4"><a href="/projects/view/{{ project.id }}">{{ project.name }}</a><br></h4>
+						<h4 class="h4"><span id="score" class="badge {{ results.score_class }}">{{ results.score }}</span></h4>
+						<h6 class="h6">Areas for Improvement:</h6>
+						<uL>
+							{% for attribute in results.below_average %}
+								<li>{{ attribute }}</li>
+							{% endfor %}
+						</ul>
+					</div>
+				</div>
 				{% if forloop.counter|divisibleby:"4" and not forloop.last %}
 				</div><div class="row">
 				{% endif %}
