@@ -24,10 +24,10 @@
 						</ul>
 					</div>
 				</div>
+			</div>
 				{% if forloop.counter|divisibleby:"4" and not forloop.last %}
 				</div><div class="row">
 				{% endif %}
-			</div>
 		{% endfor %}
 	</div>
 	{{ graph|safe }}
