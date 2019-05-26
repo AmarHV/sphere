@@ -7,7 +7,12 @@ import datetime
 
 def index(request):
 	projects = Project.objects.all()
-	return render(request, "index.html", {'projects':projects})
+	results = {}
+	for project in projects:
+		r, theta = get_graph_data(project)
+		stats = get_stats(r, theta)
+		results[project] = stats
+	return render(request, "index.html", {'projects':projects, 'results': results})
 
 def new(request):
 	if request.method == "POST":
@@ -19,39 +24,8 @@ def new(request):
 
 def view(request, id):
 	project = get_object_or_404(Project, pk=id)
-	criteria = project.criteria.all()
-	theta = [attribute.name for attribute in Attribute.objects.all()]
-	r = []
-	results = {}
-	for attribute in theta:
-		criterion = list(filter(lambda c:c.question.field.name == attribute, criteria))
-		r_sum = 0
-		weight_sum = 0
-		for c in criterion:
-			weighting = c.question.weighting
-			r_sum += (c.rating * weighting)
-			weight_sum += weighting
-		r.append(r_sum/weight_sum) if weight_sum != 0 else r.append(0)
-	total_sum = sum(r)
-	average = total_sum / len(r)
-	below_average = []
-	for value, attribute in zip(r, theta):
-		if value < average:
-			below_average.append(attribute)
-	results["below_average"] = below_average
-	MAX = 5
-	area = 0
-	i = 0
-	r.append(r[0])
-	theta.append(theta[0])
-	while i < len(theta) - 1:
-		sub_area = (r[i] * r[i+1])/2
-		area += sub_area
-		i += 1
-	max_area = (len(theta) - 1) * ((MAX * MAX)/2)
-	score = round((area / max_area) * 100, 1)
-	results["score_class"] = get_score_class(score)
-	results["score"] = score
+	r, theta = get_graph_data(project)
+	results = get_stats(r, theta)
 	data = [go.Scatterpolar(
 		r = r,
 		theta = theta,
@@ -72,7 +46,6 @@ def view(request, id):
 		l = 10
 	)
 	)
-
 	fig = go.Figure(data=data, layout=layout)
 	graph = plotly.offline.plot(fig, output_type='div', show_link=False, config={"displayModeBar":False})
 
@@ -106,3 +79,42 @@ def get_score_class(score):
 		return "badge-primary"
 	else:
 		return "badge-success"
+
+def get_graph_data(project):
+	criteria = project.criteria.all()
+	theta = [attribute.name for attribute in Attribute.objects.all()]
+	r = []
+	for attribute in theta:
+		criterion = list(filter(lambda c:c.question.field.name == attribute, criteria))
+		r_sum = 0
+		weight_sum = 0
+		for c in criterion:
+			weighting = c.question.weighting
+			r_sum += (c.rating * weighting)
+			weight_sum += weighting
+		r.append(r_sum/weight_sum) if weight_sum != 0 else r.append(0)
+	return (r, theta)
+
+def get_stats(r, theta):
+	results = {}
+	total_sum = sum(r)
+	average = total_sum / len(r)
+	below_average = []
+	for value, attribute in zip(r, theta):
+		if value < average:
+			below_average.append(attribute)
+	results["below_average"] = below_average
+	MAX = 5
+	area = 0
+	i = 0
+	r.append(r[0])
+	theta.append(theta[0])
+	while i < len(theta) - 1:
+		sub_area = (r[i] * r[i+1])/2
+		area += sub_area
+		i += 1
+	max_area = (len(theta) - 1) * ((MAX * MAX)/2)
+	score = round((area / max_area) * 100, 1)
+	results["score_class"] = get_score_class(score)
+	results["score"] = score
+	return results
