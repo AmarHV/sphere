@@ -14,7 +14,7 @@
 			<div class="col-md-3">
 				<div class="card">
 					<div class="card-body">
-						<h4 class="h4"><a href="/projects/view/{{ project.id }}">{{ project.name }}</a> <span class="badge badge-secondary">{{ project.category.name }}</span></h4>
+						<h4 class="h4"><a href="/projects/view/{{ project.id }}">{{ project.name }}</a></h4>
 						<h4 class="h4"><span id="score" class="badge {{ results.score_class }}">{{ results.score }}</span></h4>
 						<h6 class="h6">Areas for Improvement:</h6>
 						<uL>
@@ -22,6 +22,9 @@
 								<li>{{ attribute }}</li>
 							{% endfor %}
 						</ul>
+					</div>
+					<div class="card-footer">
+					<span class="badge badge-secondary">{{ project.category.name }}</span>
 					</div>
 				</div>
 			</div>
