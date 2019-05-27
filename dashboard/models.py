@@ -19,7 +19,7 @@ class CategoryAttributeWeighting(models.Model):
 
 class Project(models.Model):
 	name = models.CharField(max_length=200)
-	category = models.ForeignKey(Category, related_name='projects', on_delete=models.PROTECT)
+	#category = models.ForeignKey(Category, related_name='projects', on_delete=models.PROTECT)
 	date_created = models.DateTimeField()
 	def __str__(self):
 		return self.name
