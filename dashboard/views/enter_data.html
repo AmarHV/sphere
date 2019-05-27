@@ -8,7 +8,7 @@
 		{% csrf_token %}
 		{% for attribute in attributes %}
 			<div class="attribute">
-				<h3 class="h5">{{ attribute.name }}</h3>
+				<h3 class="h4">{{ attribute.name }}</h3>
 				{% for field in attribute.fields.all %}
 					<b>{{ field.question }}</b>
 					<table class="table table-striped">
