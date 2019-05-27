@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 import plotly
 import plotly.graph_objs as go
-from .models import Project, Attribute, Field, Criterion
+from .models import Project, Attribute, Field, Criterion, Category
 from django.http import HttpResponseRedirect
 import datetime
 
@@ -10,22 +10,24 @@ def index(request):
 	results = {}
 	for project in projects:
 		r, theta = get_graph_data(project)
-		stats = get_stats(r, theta)
+		stats = get_stats(r, theta, project.category)
 		results[project] = stats
 	return render(request, "index.html", {'projects':projects, 'results': results})
 
 def new(request):
 	if request.method == "POST":
-		project = Project(name=request.POST.get("name"), date_created=datetime.datetime.now())
+		category = get_object_or_404(Category, pk=request.POST.get('category'))
+		project = Project(name=request.POST.get("name"), date_created=datetime.datetime.now(), category=category)
 		project.save()
 		return HttpResponseRedirect("/projects/view/{}".format(project.id))
 	else:
-		return render(request, 'new.html')
+		categories = Category.objects.all()
+		return render(request, 'new.html', {"categories":categories})
 
 def view(request, id):
 	project = get_object_or_404(Project, pk=id)
 	r, theta = get_graph_data(project)
-	results = get_stats(r, theta)
+	results = get_stats(r, theta, project.category)
 	data = [go.Scatterpolar(
 		r = r,
 		theta = theta,
@@ -95,8 +97,12 @@ def get_graph_data(project):
 		r.append(r_sum/weight_sum) if weight_sum != 0 else r.append(0)
 	return (r, theta)
 
-def get_stats(r, theta):
+def get_stats(r, theta, project_category):
 	results = {}
+	weightings = project_category.category_attribute_weightings.all()
+	weighting_sum = 0
+	for weighting in weightings:
+		weighting_sum += weighting.weighting
 	total_sum = sum(r)
 	average = total_sum / len(r)
 	below_average = []
@@ -110,10 +116,17 @@ def get_stats(r, theta):
 	r.append(r[0])
 	theta.append(theta[0])
 	while i < len(theta) - 1:
-		sub_area = (r[i] * r[i+1])/2
-		area += sub_area
+		weighting_0 = list(filter(lambda x: x.attribute.name == theta[i], weightings))[0]
+		area += r[i]*weighting_0.weighting
 		i += 1
-	max_area = (len(theta) - 1) * ((MAX * MAX)/2)
+	area = area / (len(theta) - 1)
+	val = 0
+	i = 0
+	while i < len(theta) - 1:
+		weighting_0 = list(filter(lambda x: x.attribute.name == theta[i], weightings))[0]
+		val += weighting_0.weighting*MAX
+		i += 1
+	max_area = val / (len(theta) - 1)
 	score = round((area / max_area) * 100, 1)
 	results["score_class"] = get_score_class(score)
 	results["score"] = score

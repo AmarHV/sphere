@@ -1,13 +1,26 @@
 from django.db import models
 
-class Project(models.Model):
+class Category(models.Model):
 	name = models.CharField(max_length=200)
-	date_created = models.DateTimeField()
 	def __str__(self):
 		return self.name
 
 class Attribute(models.Model):
 	name = models.CharField(max_length=200)
+	def __str__(self):
+		return self.name
+
+class CategoryAttributeWeighting(models.Model):
+	category = models.ForeignKey(Category, related_name='category_attribute_weightings', on_delete=models.CASCADE)
+	attribute = models.ForeignKey(Attribute, related_name='category_attribute_weightings', on_delete=models.CASCADE)
+	weighting = models.FloatField()
+	def __str__(self):
+		return "{}/{}".format(self.category, self.attribute)
+
+class Project(models.Model):
+	name = models.CharField(max_length=200)
+	category = models.ForeignKey(Category, related_name='projects', on_delete=models.PROTECT)
+	date_created = models.DateTimeField()
 	def __str__(self):
 		return self.name
 
