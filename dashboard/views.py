@@ -106,12 +106,15 @@ def get_stats(r, theta, project_category, project):
 	total_sum = sum(r)
 	average = total_sum / len(r)
 	below_average = {}
-	for value, attribute in zip(r, theta):
-		if value < average:
-			below_average[attribute] = list()
-			for question in Attribute.objects.filter(name=attribute)[0].fields.all():
-				if project.criteria.filter(question=question)[0].rating <= value:
-					below_average[attribute].append(question.improvement_message)
+	try:
+		for value, attribute in zip(r, theta):
+			if value < average:
+				below_average[attribute] = list()
+				for question in Attribute.objects.filter(name=attribute)[0].fields.all():
+					if project.criteria.filter(question=question)[0].rating <= value:
+						below_average[attribute].append(question.improvement_message)
+	except:
+		pass
 	results["below_average"] = below_average
 	MAX = 5
 	area = 0
