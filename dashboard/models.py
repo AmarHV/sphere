@@ -27,6 +27,7 @@ class Project(models.Model):
 class Field(models.Model):
 	question = models.CharField(max_length=500)
 	weighting = models.FloatField()
+	improvement_message = models.CharField(max_length=200)
 	field = models.ForeignKey(Attribute, on_delete=models.CASCADE, related_name="fields")
 	def __str__(self):
 		return self.question

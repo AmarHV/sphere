@@ -19,8 +19,14 @@
 			<h5><span id="score" class="badge {{ results.score_class }}">{{ results.score }}</span></h5>
 			<h6 class="h6">Areas for Improvement:</h6>
 			<uL>
-				{% for attribute in results.below_average %}
-					<li>{{ attribute }}</li>
+				{% for attribute, improvements in results.below_average.items %}
+					<li>{{ attribute }}
+						<ul>
+							{% for improvement in improvements %}
+								<li>{{ improvement }}</li>
+							{% endfor %}
+						</ul>
+					</li>
 				{% endfor %}
 			</ul>
 		</div>
