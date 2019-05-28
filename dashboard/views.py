@@ -10,7 +10,7 @@ def index(request):
 	results = {}
 	for project in projects:
 		r, theta = get_graph_data(project)
-		stats = get_stats(r, theta, project.category)
+		stats = get_stats(r, theta, project.category, project)
 		results[project] = stats
 	return render(request, "index.html", {'projects':projects, 'results': results})
 
@@ -27,7 +27,7 @@ def new(request):
 def view(request, id):
 	project = get_object_or_404(Project, pk=id)
 	r, theta = get_graph_data(project)
-	results = get_stats(r, theta, project.category)
+	results = get_stats(r, theta, project.category, project)
 	data = [go.Scatterpolar(
 		r = r,
 		theta = theta,
@@ -97,7 +97,7 @@ def get_graph_data(project):
 		r.append(r_sum/weight_sum) if weight_sum != 0 else r.append(0)
 	return (r, theta)
 
-def get_stats(r, theta, project_category):
+def get_stats(r, theta, project_category, project):
 	results = {}
 	weightings = project_category.category_attribute_weightings.all()
 	weighting_sum = 0
@@ -110,7 +110,7 @@ def get_stats(r, theta, project_category):
 		if value < average:
 			below_average[attribute] = list()
 			for question in Attribute.objects.filter(name=attribute)[0].fields.all():
-				if question.criteria.all()[0].rating < value:
+				if project.criteria.filter(question=question)[0].rating <= value:
 					below_average[attribute].append(question.improvement_message)
 	results["below_average"] = below_average
 	MAX = 5
